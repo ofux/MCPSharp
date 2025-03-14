@@ -96,23 +96,6 @@ namespace MCPSharp
         {
             _instance.Implementation = new(serverName, version);
 
-            var allTypes = Assembly.GetEntryAssembly()!.GetTypes()
-                .Where(t =>
-                {
-                    bool classHasToolAttribute = t.GetCustomAttribute<McpToolAttribute>() != null;
-                    bool methodHasToolAttribute = t.GetMethods().Any(m => m.GetCustomAttribute<McpToolAttribute>() != null);
-                    bool methodHasFunctionAttribute = t.GetMethods().Any(m => m.GetCustomAttribute<McpFunctionAttribute>() != null);
-                    bool methodHasResourceAttribute = t.GetMethods().Any(m => m.GetCustomAttribute<McpResourceAttribute>() != null);
-
-                    return classHasToolAttribute || methodHasToolAttribute || methodHasFunctionAttribute || methodHasResourceAttribute;
-                });
-
-            foreach (var toolType in allTypes)
-            {
-                var registerMethod = typeof(MCPServer).GetMethod(nameof(ToolManager.Register))?.MakeGenericMethod(toolType);
-                registerMethod?.Invoke(_instance, null);
-            }
-
             await Task.Delay(-1);
         }
 
